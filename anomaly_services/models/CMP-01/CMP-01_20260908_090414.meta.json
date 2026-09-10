@@ -1,0 +1,14 @@
+{
+  "machine_name": "CMP-01",
+  "features": [
+    "arus_a",
+    "outlet_pressure_bar",
+    "outlet_flow_rate_m3h",
+    "kwh_per_m3"
+  ],
+  "contamination": 0.05,
+  "n_estimators": 200,
+  "max_samples": 400,
+  "n_samples_trained": 1555200,
+  "trained_at": "20260908_090414"
+}

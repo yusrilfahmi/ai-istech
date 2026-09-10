@@ -1,0 +1,13 @@
+{
+  "machine_name": "CNC-001",
+  "features": [
+    "temp_mean",
+    "vib_rms",
+    "current_std"
+  ],
+  "contamination": 0.03,
+  "n_estimators": 150,
+  "max_samples": "auto",
+  "n_samples_trained": 800,
+  "trained_at": "20260903_043111"
+}

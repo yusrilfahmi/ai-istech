@@ -1,0 +1,1500 @@
+{
+  "name": "AI Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "model": "qwen/qwen3.8-27b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        -80,
+        928
+      ],
+      "id": "b92e2e41-ec3d-4af0-9d62-46c7fb451581",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "1CpBMhhMQBdc8P5T",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Add your data for RAG Knowledge Base",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file",
+              "fieldName": "Upload Your File(s) Here",
+              "acceptFileTypes": ".pdf, .md, .txt, .csv",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -800,
+        688
+      ],
+      "id": "54a32527-0f22-4ebd-a3d5-bf7d7b5a1065",
+      "name": "On form submission",
+      "webhookId": "49892e60-b3e2-4d45-b606-bf84aa135e39"
+    },
+    {
+      "parameters": {
+        "dataType": "binary",
+        "textSplittingMode": "custom",
+        "options": {
+          "splitPages": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1.1,
+      "position": [
+        -544,
+        848
+      ],
+      "id": "d2310a0c-dff4-475d-8243-d702c387ca8c",
+      "name": "Default Data Loader"
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        64,
+        928
+      ],
+      "id": "3578e555-a43c-462f-a25d-1a9acc4a20dd",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.rerankerCohere",
+      "typeVersion": 1,
+      "position": [
+        608,
+        -256
+      ],
+      "id": "8f5dc3f1-3622-43e3-9e5c-08cacd18d3ff",
+      "name": "Reranker Cohere",
+      "credentials": {
+        "cohereApi": {
+          "id": "VjNbynjoCuTYNINU",
+          "name": "Cohere account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Retriever",
+        "topK": 5,
+        "useReranker": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        448,
+        -384
+      ],
+      "id": "f5c860bc-1a04-42f2-aaeb-33fa74ee3312",
+      "name": "Retrieve",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "\"Kamu adalah asisten Industri bernama Automate.\\n\\n\"\n\n\"ATURAN WAJIB:\\n\"\n\"1. Kamu WAJIB memanggil tool `Retrieve` sebelum menjawab.\\n\"\n \"2. Kamu DILARANG menjawab tanpa menggunakan hasil dari tool.\\n\"\n \"3. Jika tidak ada hasil dari tool, jawab: 'Maaf, saya tidak menemukan jawabannya di dokumen.'\\n\""
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -16,
+        688
+      ],
+      "id": "89efdf05-9b8f-4bd9-898c-78b16dc10d8b",
+      "name": "Chatbot"
+    },
+    {
+      "parameters": {
+        "model": "gemma4:e4b",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "typeVersion": 1,
+      "position": [
+        -496,
+        -528
+      ],
+      "id": "f28848da-61bb-48ee-ade7-b21d746f58f3",
+      "name": "Ollama Chat Model",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ucml6Cl9yWFH9LqR",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "sentence-transformers/all-mpnet-base-v2",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsHuggingFaceInference",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        848
+      ],
+      "id": "4708b506-2dd2-48fd-8090-0266e9df7473",
+      "name": "Embeddings HuggingFace Inference",
+      "credentials": {
+        "huggingFaceApi": {
+          "id": "D3QNljnS2wmIATgb",
+          "name": "Hugging Face account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "typeVersion": 1.3,
+      "position": [
+        -640,
+        688
+      ],
+      "id": "32eea2f8-33c9-40d0-9da0-06a1509b90b1",
+      "name": "Store",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chunkOverlap": 100,
+        "options": {
+          "splitCode": "markdown"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        -464,
+        976
+      ],
+      "id": "c225a581-c984-496b-b0f0-075daef6acde",
+      "name": "Recursive Character Text Splitter"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -368,
+        -768
+      ],
+      "id": "fcafe51d-6186-4abf-bcb6-483ee9ac493f",
+      "name": "Webhook",
+      "webhookId": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -2416,
+        -592
+      ],
+      "id": "38daeb48-f360-4ee8-8fb3-ef2c1fe17b77",
+      "name": "Webhook1",
+      "webhookId": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28"
+    },
+    {
+      "parameters": {
+        "formTitle": "Add your data for RAG Knowledge Base",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "File",
+              "fieldType": "file",
+              "fieldName": "file",
+              "acceptFileTypes": ".pdf, .md, .txt, .csv",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.6,
+      "position": [
+        -2416,
+        -784
+      ],
+      "id": "e11900e9-45ae-468e-9c22-83c8c095ece5",
+      "name": "Input KB",
+      "webhookId": "85f9765a-710d-4033-8b0b-e54e331be515"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ output: $json.output }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        112,
+        -768
+      ],
+      "id": "cc0ff404-bea4-4c0d-a693-02e2209fc380",
+      "name": "Respond to Webhook"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.conversationId }}",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        -80,
+        -528
+      ],
+      "id": "722bd69c-783e-497f-bddb-f398e44ba094",
+      "name": "Orchestrator Memory",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        160,
+        -384
+      ],
+      "id": "4b2a0c9b-2f81-42fa-b2b3-4cb278b07341",
+      "name": "Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UAVHIyktbOTYXGJz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ JSON.stringify($('Agent Anomali').item.json.body) }}",
+        "options": {
+          "systemMessage": "Kamu adalah AI Agent Orchestrator untuk sistem deteksi anomali mesin industri.\n\nTUGAS UTAMA:\nKamu bertindak sebagai KOORDINATOR, bukan sebagai eksekutor analisis.\n\nKamu menerima input dari Webhook n8n. Input utama dari webhook berada pada object:\n\nbody\n\nKamu harus membaca isi `body`, menentukan jenis permintaan, lalu memilih TOOL yang tepat.\n\n==================================================\n1. STRUKTUR INPUT WEBHOOK\n==================================================\n\nInput webhook biasanya memiliki struktur seperti:\n\n{\n  \"headers\": {...},\n  \"params\": {...},\n  \"query\": {...},\n  \"body\": {\n    ...\n  }\n}\n\nJANGAN menggunakan `headers`, `params`, atau `query` untuk menentukan operasi utama.\n\nSELALU fokus pada:\n\n'body'\n\nField di dalam `body` merupakan sumber data utama untuk menentukan apakah operasi yang diminta adalah:\n\n- PREDICT\n- BUILD MODEL\n\n==================================================\n2. ATURAN ROUTING UTAMA\n==================================================\n\nKamu HARUS memilih tepat SATU operasi utama untuk setiap webhook.\n\nJANGAN menjalankan IF Predict dan IF Build Model secara bersamaan dalam satu trigger.\n\nGunakan aturan berikut.\n\n--------------------------------------------------\nA. ROUTING KE 'IF Predict'\n--------------------------------------------------\n\nGunakan TOOL:\n\n'IF Predict'\n\njika `body` berisi data \"mode\": \"Predict\".\n\nField yang diharapkan:\n- mode\n- machine_name\n- model_train\n- sample\n\nJika struktur tersebut tersedia, pilih:\n\nIF Predict\n\nJangan memilih IF Build Model.\n\n--------------------------------------------------\nB. ROUTING KE IF Build Model\n--------------------------------------------------\n\nGunakan TOOL:\n\n'IF Build Model'\n\njika input meminta PEMBUATAN / TRAINING MODEL baru berdasarkan dataset.\n\nIndikator utama BUILD MODEL adalah \"mode\": \"Build Model\"\n\nJika terdapat file dataset/CSV yang digunakan untuk training model, pilih:\n\nIF Build Model\n\nJangan memilih IF Predict hanya karena terdapat `machine_name`.\n\n==================================================\n3. WAJIB SETELAH IF Predict\n==================================================\n\nSETELAH TOOL IF Predict berhasil memberikan hasil:\n\nWAJIB meneruskan hasil tersebut ke:\n\nAgent Detector Analis\n\nUrutannya HARUS:\n\nWebhook\n    ↓\nIF Predict\n    ↓\nAgent Detector Analis\n    ↓\nFinal Response\n\nJangan memberikan hasil prediksi langsung kepada user sebelum Agent Detector Analis selesai.\n\nAgent Detector Analis bertugas menginterpretasikan hasil deteksi dan memberikan analisis/rekomendasi.\n\nJika IF Predict gagal/error:\n\nJangan menjalankan Agent Detector Analis menggunakan data yang tidak lengkap.\n\nLaporkan bahwa proses prediksi gagal dan tampilkan alasan/error jika tersedia.\n\n==================================================\n7. JIKA INPUT TIDAK LENGKAP\n==================================================\n\nJangan mengarang data.\n\nJika PREDICT tetapi field penting tidak tersedia, minta field yang kurang.\n\nField minimal PREDICT:\n\n- mode\n- machine_name\n- model_train\n- sample\n\nContoh:\n\nJika hanya terdapat:\n\n{\n  \"machine_name\": \"CPM-11\",\n  \"sample\": {...}\n}\n\ntetapi tidak terdapat:\n\nmodel_train\n\nmaka JANGAN menjalankan IF Predict.\n\nBeritahu user bahwa informasi model belum lengkap.\n\nJika BUILD MODEL tetapi dataset/file tidak tersedia:\n\nJangan menjalankan IF Build Model.\n\nMinta dataset/file training.\n\n==================================================\n4. LARANGAN\n==================================================\n\nKamu DILARANG:\n\n1. Menjalankan IF Predict dan IF Build Model dalam satu trigger.\n\n2. Melakukan prediksi sendiri tanpa menggunakan IF Predict.\n\n3. Melakukan training model sendiri tanpa menggunakan IF Build Model.\n\n4. Mengarang nilai anomaly_score.\n\n5. Mengarang nilai is_anomaly.\n\n6. Mengarang nama model_train.\n\n7. Mengarang dataset.\n\n8. Mengubah nama feature.\n\n9. Mengubah nilai sample.\n\n10. Mengubah threshold yang diberikan user.\n\n11. Menganggap request sebagai PREDICT hanya karena terdapat `machine_name`.\n\n12. Menjalankan Agent Detector Analis sebelum IF Predict berhasil.\n\n13. Menjalankan Agent Detector Analis setelah Build Model kecuali memang diminta secara eksplisit untuk melakukan analisis terhadap hasil training.\n\n==================================================\n5. CARA MEMBACA INPUT\n==================================================\n\nSebelum memilih tool, lakukan proses berikut secara internal:\n\nSTEP 1:\nBaca: 'body'\n\nSTEP 2:\nPeriksa apakah terdapat 'mode': 'Predict'\n\nJika YA:\nROUTE = IF Predict\n\nSTEP 3:\nJika tidak, periksa apakah 'mode':'Model_Train'\n\nJika YA:\nROUTE = IF Build Model\n\nSTEP 4:\nJika tidak dapat menentukan:\nJangan menebak.\nMinta informasi tambahan.\n\n==================================================\n6. OUTPUT SETELAH PREDICT\n==================================================\n\nSetelah:\n\nIF Predict\n→ Agent Detector Analis\n\nsusun hasil akhir berdasarkan output Agent Detector Analis.\n\nOutput harus berisi informasi:\n\n{\n  \"machine_name\": \"string\",\n  \"model_train\": \"string\",\n  \"routing_db\": \"string atau null\",\n  \"timing\": \"string atau null\",\n  \"anomaly_score\": \"number\",\n  \"is_anomaly\": \"boolean\",\n  \"context\": \"string\"\n}\n\nJangan mengubah nilai hasil prediksi.\n\n`context` boleh dijelaskan dengan bahasa yang mudah dipahami berdasarkan hasil dari Agent Detector Analis.\n\nJika Agent Detector Analis memberikan rekomendasi tindakan, sertakan rekomendasi tersebut dalam penjelasan akhir.\n\n==================================================\n7. OUTPUT SETELAH BUILD MODEL\n==================================================\n\nJika IF Build Model berhasil:\n\nBerikan response sederhana:\n\n{\n  \"success\": true\n}\n\nJika gagal:\n\n{\n  \"success\": false\n}\n\nJika tool memberikan informasi error yang relevan, boleh tambahkan:\n\n{\n  \"success\": false,\n  \"error\": \"...\"\n}\n\nJangan memberikan analisis prediksi setelah Build Model.\n\n==================================================\n8. BAHASA\n==================================================\n\nGunakan Bahasa Indonesia yang profesional, jelas, dan ringkas.\n\nJika user menggunakan bahasa lain dan meminta jawaban dalam bahasa tersebut, ikuti bahasa user.\n\n==================================================\n13. PERAN SETIAP AGENT\n==================================================\n\nKamu:\nAI Agent Orchestrator.\n\nTugasmu:\n- membaca webhook\n- menentukan intent\n- memilih tool\n- meneruskan data\n- mengatur urutan agent\n\nIF Predict:\nMelakukan prediksi anomaly berdasarkan model yang sudah tersedia.\n\nIF Build Model:\nMelakukan training/build model baru berdasarkan dataset.\n\nAgent Detector Analis:\nMenginterpretasikan hasil prediksi dan memberikan analisis/rekomendasi.\n\nJangan mengambil alih tugas tool atau sub-agent.\n\n==================================================\n9. ATURAN PALING PENTING\n==================================================\n\nSELALU ikuti alur berikut:\n\nPREDICT:\n\nWebhook body\n→ IF Predict\n→ Agent Detector Analis\n→ Final Response\n\n\nBUILD MODEL:\n\nWebhook body\n→ IF Build Model\n→ Final Response\n\n\nTIDAK BOLEH:\n\nWebhook body\n→ IF Predict\n→ IF Build Model\n\natau:\n\nWebhook body\n→ IF Build Model\n→ IF Predict\n\n\nJika routing sudah jelas, LANGSUNG gunakan tool yang sesuai."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1184,
+        -752
+      ],
+      "id": "d4051ca3-d6f1-4077-9af0-05b31136f60b",
+      "name": "Anomali Detector Agent"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.headers['user-agent'] }}",
+        "tableName": "n8n_detector_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        1280,
+        -464
+      ],
+      "id": "2cb4794f-01a6-426b-8463-ac30666e988d",
+      "name": "Detector Memory",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "qwen3-embedding:0.6b"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOllama",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -256
+      ],
+      "id": "4567eef1-1c78-42d1-89d2-c5ca9f63b313",
+      "name": "Embeddings Ollama",
+      "credentials": {
+        "ollamaApi": {
+          "id": "ucml6Cl9yWFH9LqR",
+          "name": "Ollama account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -528
+      ],
+      "id": "2cdbd20e-0196-4c3a-a345-a7ba7374331c",
+      "name": "Backup Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UAVHIyktbOTYXGJz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Trash",
+        "height": 656,
+        "width": 1520
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        608
+      ],
+      "typeVersion": 1,
+      "id": "c1b789eb-2b89-4a14-a3ca-0a91c0f1296a",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('URL', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        48,
+        -528
+      ],
+      "id": "a9d4be4b-a467-4f49-8ca6-1266be3c7489",
+      "name": "LSTM"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.body.conversationId }}",
+        "tableName": "n8n_chat_Agent_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        256,
+        -384
+      ],
+      "id": "c8a48014-e408-405f-a1cf-fe46755d54e5",
+      "name": "Memory",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1840,
+        -592
+      ],
+      "id": "95d0af81-f85e-433a-ae28-6f27c6e74855",
+      "name": "ERP Check Stock"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1552,
+        -448
+      ],
+      "id": "44b3a875-31bc-49ec-a945-efac7aa3e024",
+      "name": "Model3",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "UAVHIyktbOTYXGJz",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "Kamu adalah Agent Detector Analis, spesialis analisis data dan pencarian informasi dari knowledge base.\n\nTUGAS UTAMA:\nMengambil, menganalisis, dan merangkum informasi dari knowledge base (dokumen, data historis, tabel database) untuk menjawab pertanyaan user secara akurat dan berbasis bukti.\n\nCARA KERJA:\n1. Terima pertanyaan dari Orchestrator.\n2. Cari informasi relevan HANYA dari knowledge base yang tersedia (retrieval tool) — jangan menjawab menggunakan pengetahuan umum/asumsi jika informasi tersebut seharusnya ada di knowledge base.\n3. Jika hasil pencarian tidak ditemukan atau tidak relevan, sampaikan dengan jujur bahwa informasi tidak tersedia di knowledge base, jangan mengarang jawaban (hindari halusinasi).\n4. Analisis data yang ditemukan: identifikasi pola, tren, perbandingan, atau insight penting yang relevan dengan pertanyaan user.\n5. Sertakan referensi/sumber data yang digunakan (misal nama dokumen, tanggal data, tabel sumber) agar jawaban dapat diverifikasi.\n\nATURAN PENTING:\n- Prioritaskan akurasi di atas kelengkapan — lebih baik menjawab sebagian dengan benar daripada lengkap tapi mengarang.\n- Jika data dari knowledge base sudah usang (outdated) atau ambigu, sebutkan hal tersebut sebagai catatan.\n- Jangan melakukan prediksi/forecasting numerik berbasis model — itu tugas Agent Machine Learning. Fokus kamu adalah analisis deskriptif dari data yang sudah ada.\n- Sampaikan insight dalam bahasa yang mudah dipahami non-teknis, tapi tetap didukung data konkret (angka, tanggal, sumber).\n\nFORMAT OUTPUT (ke Orchestrator):\n- Ringkasan temuan utama\n- Detail data pendukung (angka, tabel, kutipan singkat dari sumber)\n- Sumber/referensi yang digunakan\n- Catatan jika ada keterbatasan dataful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        1552,
+        -592
+      ],
+      "id": "30e5c44b-8a50-42d9-add8-1a9db9b821d6",
+      "name": "Agent Detector Analis"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={ $json.headers['user-agent'] }}",
+        "tableName": "n8n_chat_Agent_histories",
+        "contextWindowLength": 10
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "typeVersion": 1.4,
+      "position": [
+        1648,
+        -416
+      ],
+      "id": "3787002a-8cb1-4215-8c7d-da3d5bde2e95",
+      "name": "Memory Analis D",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message }}",
+        "needsFallback": true,
+        "options": {
+          "systemMessage": "Kamu adalah AI Agent Orchestrator, koordinator utama dalam sistem multi-agent untuk analisis dan prediksi data.\n\nTUGAS UTAMA:\nMenerima pertanyaan/permintaan dari user, memahami maksudnya, lalu mendelegasikan tugas ke sub-agent yang tepat:\n\n1. Tool Agent Analis \n   - Gunakan ketika user meminta: analisis data historis, insight, ringkasan, pencarian informasi dari dokumen/knowledge base, atau penjelasan kontekstual dari data yang tersimpan.\n\n2. Tool Agent Machine Learning\n   - Gunakan ketika user meminta: prediksi/forecast, proyeksi nilai masa depan, analisis time series, deteksi tren berbasis model (LSTM), atau perhitungan statistik/model yang memerlukan eksekusi kode Python.\n   - Contoh trigger: \"prediksi pemakaian energi\", \"forecast 30 hari ke depan\", \"jalankan model LSTM untuk data ini\", \"prediksi kedepan\".\n\n\nATURAN KERJA:\n- Harus selalu memanggil Tools Agent Analis\n- Jika permintaan user membutuhkan KEDUANYA (misal: \"analisis data historis lalu prediksi ke depan\"), panggil Agent Analis terlebih dahulu untuk konteks, baru teruskan hasilnya ke Agent Machine Learning untuk prediksi.\n- Jangan menjawab pertanyaan teknis (prediksi/analisis) secara langsung tanpa mendelegasikan ke sub-agent yang relevan — kamu adalah koordinator, bukan eksekutor.\n- Jika permintaan ambigu, ajukan satu pertanyaan klarifikasi singkat sebelum mendelegasikan.\n- Setelah menerima hasil dari sub-agent, susun ulang jawaban akhir dengan bahasa yang jelas, ringkas, dan mudah dipahami oleh user (jangan hanya menempel output mentah).\n- Jika sub-agent gagal atau tidak memberi hasil valid, sampaikan ke user secara transparan dan tawarkan alternatif.\n- Gunakan Bahasa Indonesia yang profesional namun mudah dipahami, kecuali user meminta bahasa lain.\n\nFORMAT OUTPUT:\n- Jawaban akhir harus terstruktur: ringkasan singkat di awal, lalu detail/angka pendukung, lalu (jika relevan) rekomendasi tindakan.\n\n## Mathematical Formatting Rules\n\nWhen writing mathematical formulas, ALWAYS use LaTeX syntax.\n\nFor inline formulas, use:\n$...$\n\nFor standalone or multi-part formulas, ALWAYS use:\n$$\n...\n$$\n\nNEVER output raw LaTeX commands outside a math delimiter.\n\nFor example, DO NOT write:\n\nP_{\\text{Baru}} = 10 \\text{ kW} \\times (0.70)^3\n\nInstead, ALWAYS write:\n\n$$\nP_{\\text{Baru}} = 10\\,\\text{kW} \\times (0.70)^3\n$$\n\nAnother example:\n\nDO NOT write:\nP = P_{\\text{Full}} \\times \\left(\\frac{N_{\\text{VSD}}}{N_{\\text{Full}}}\\right)^3\n\nInstead write:\n\n$$\nP = P_{\\text{Full}} \\times\n\\left(\\frac{N_{\\text{VSD}}}{N_{\\text{Full}}}\\right)^3\n$$\n\nNever mix raw LaTeX with normal Markdown text."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -192,
+        -768
+      ],
+      "id": "e75e34bb-03bf-4593-a48f-f598600f9a2c",
+      "name": "Forcasting Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -176,
+        688
+      ],
+      "id": "83676288-a2ef-4a48-8959-e5c5c418ef2b",
+      "name": "When chat message received",
+      "webhookId": "278494cc-cc00-4950-8dce-cd26d75cc80f"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1e71086e-ce89-4b25-a69f-d8e46dd3d683",
+              "name": "id",
+              "value": "={{ $json.id.slice(0, 8) }}-{{ $json.id.slice(8, 12) }}-{{ $json.id.slice(12, 16) }}-{{ $json.id.slice(16, 20) }}-{{ $json.id.slice(20, 32) }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1344,
+        -672
+      ],
+      "id": "0966a511-fdd2-4ba7-934e-d00973179387",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "type": "MD5",
+        "value": "={{ $json.metadata.file_name }}_chunk_{{ $json.metadata.chunk_id }}",
+        "dataPropertyName": "id"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        -1568,
+        -672
+      ],
+      "id": "48da73c1-b0a9-4c3d-8114-3cf0632349c0",
+      "name": "Crypto"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "chunks",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -1792,
+        -672
+      ],
+      "id": "ba78ed0a-b596-4193-a0eb-64374d6e8fec",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8000/chunk",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "=file",
+              "inputDataFieldName": "file"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        -2016,
+        -672
+      ],
+      "id": "8ee012c5-f1fd-48f6-9bb8-4304730767b8",
+      "name": "Chunks & Embeddings"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "n8n_vectors",
+          "mode": "list",
+          "cachedResultName": "n8n_vectors"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $json.id }}",
+            "text": "={{ $('Crypto').item.json.pageContent }}",
+            "embedding": "={{ $('Crypto').item.json.embeddings }}",
+            "metadata": "={{ $('Crypto').item.json.metadata }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "text",
+              "displayName": "text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "metadata",
+              "displayName": "metadata",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "object",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "embedding",
+              "displayName": "embedding",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -1120,
+        -672
+      ],
+      "id": "d6884559-965e-49b8-b030-c46f68b75d99",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "Ih1rbOH7GFspCliX",
+          "name": "Postgres account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "Kamu adalah Agent Analis, spesialis analisis data dan pencarian informasi dari knowledge base.\n\nTUGAS UTAMA:\nMengambil, menganalisis, dan merangkum informasi dari knowledge base (dokumen, data historis, tabel database) untuk menjawab pertanyaan user secara akurat dan berbasis bukti.\n\nCARA KERJA:\n1. Terima pertanyaan dari Orchestrator.\n2. Cari informasi relevan HANYA dari knowledge base yang tersedia (retrieval tool) — jangan menjawab menggunakan pengetahuan umum/asumsi jika informasi tersebut seharusnya ada di knowledge base.\n3. Jika hasil pencarian tidak ditemukan atau tidak relevan, sampaikan dengan jujur bahwa informasi tidak tersedia di knowledge base, jangan mengarang jawaban (hindari halusinasi).\n4. Analisis data yang ditemukan: identifikasi pola, tren, perbandingan, atau insight penting yang relevan dengan pertanyaan user.\n5. Sertakan referensi/sumber data yang digunakan (misal nama dokumen, tanggal data, tabel sumber) agar jawaban dapat diverifikasi.\n\nATURAN PENTING:\n- Prioritaskan akurasi di atas kelengkapan — lebih baik menjawab sebagian dengan benar daripada lengkap tapi mengarang.\n- Jika data dari knowledge base sudah usang (outdated) atau ambigu, sebutkan hal tersebut sebagai catatan.\n- Jangan melakukan prediksi/forecasting numerik berbasis model — itu tugas Agent Machine Learning. Fokus kamu adalah analisis deskriptif dari data yang sudah ada.\n- Sampaikan insight dalam bahasa yang mudah dipahami non-teknis, tapi tetap didukung data konkret (angka, tanggal, sumber).\n\nFORMAT OUTPUT (ke Orchestrator):\n- Ringkasan temuan utama\n- Detail data pendukung (angka, tabel, kutipan singkat dari sumber)\n- Sumber/referensi yang digunakan\n- Catatan jika ada keterbatasan dataful assistant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 3,
+      "position": [
+        160,
+        -528
+      ],
+      "id": "5e4ad394-e5ea-4b95-9c34-38ce0c0648a3",
+      "name": "Agent Forcas Analis"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\nreturn Object.entries(item.binary || {}).map(([key, binary]) => ({\n  json: {\n    ...item.json,\n    fileName: binary.fileName,\n    mimeType: binary.mimeType,\n  },\n  binary: {\n    file: binary,\n  },\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -2208,
+        -672
+      ],
+      "id": "6432a877-e542-467a-8ce9-4e3ea3e8c317",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ output: $json.output }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1504,
+        -752
+      ],
+      "id": "a40a92bf-63c7-4a74-8fd9-de49e208729c",
+      "name": "Respond to Webhook1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=http://host.docker.internal:8020/predict",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"machine_name\": \"{{ $('Agent Anomali').item.json.body.machine_name }}\",\n  \"model_train\": \"{{ $('Agent Anomali').item.json.body.model_train }}\",\n  \"sample\": {{ JSON.stringify($('Agent Anomali').item.json.body.sample) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.4,
+      "position": [
+        1408,
+        -592
+      ],
+      "id": "bc55d670-0de9-408f-8ee2-127f92339ed9",
+      "name": "IF Predict"
+    },
+    {
+      "parameters": {
+        "content": "## ANOMALI DETECTOR",
+        "height": 1424,
+        "width": 1376,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        -832
+      ],
+      "typeVersion": 1,
+      "id": "9cdd848b-9440-4de4-a06c-51a961f3690e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        -752
+      ],
+      "id": "5b90d8cf-4227-4c67-9620-f90c7f27bf06",
+      "name": "Agent Anomali",
+      "webhookId": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        -256
+      ],
+      "id": "a05fe9fd-2c6e-4e0a-866e-146ef4d2d6df",
+      "name": "Anomali Check",
+      "webhookId": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "0e07ff61-71c2-4de8-8a43-7c70bdef4e37",
+              "leftValue": "={{ $json.is_anomaly }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        -256
+      ],
+      "id": "742bfee3-52c3-4e20-9558-1a5821ae7a15",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8020/predict",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"machine_name\": \"{{ $('Anomali Check').item.json.body.machine_name }}\",\n  \"model_train\": \"{{ $('Anomali Check').item.json.body.model_train }}\",\n  \"sample\": {{ JSON.stringify($('Anomali Check').item.json.body.sample) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1216,
+        -256
+      ],
+      "id": "8f5ac68e-ea2e-456d-94db-0450cc12fe1a",
+      "name": "Predict"
+    },
+    {
+      "parameters": {
+        "sendTo": "hafidzartha426@gmail.com",
+        "subject": "Anomali Detection",
+        "message": "=⚠ WARNING :\n\nMachine {{ $('Predict').item.json.machine_name }} get anomaly detected with score {{ $('Predict').item.json.anomaly_score }}.\n\nTimestamp:\n{{ $('Predict').item.json.timestamp.toDateTime().setZone('Asia/Jakarta').format(\"EEEE, d MMMM yyyy 'pukul' HH:mm:ss 'WIB'\") }}\n\nCheck the engine immediately.",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1840,
+        -272
+      ],
+      "id": "546ac798-066f-4292-a1dc-a0f3674ac69c",
+      "name": "Send a message",
+      "webhookId": "b73d6c80-a4c5-49d9-9757-6cf99926d51d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "fog390oT2iAbomOZ",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "1316693501",
+        "text": "=⚠ WARNING :  Machine {{ $('Predict').item.json.machine_name }} get anomaly detected with score {{ $('Predict').item.json.anomaly_score }}.  Timestamp: {{ $('Predict').item.json.timestamp.toDateTime().setZone('Asia/Jakarta').format(\"EEEE, d MMMM yyyy 'pukul' HH:mm:ss 'WIB'\") }}  Check the engine immediately.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1840,
+        -128
+      ],
+      "id": "776748d7-bdff-495f-bf29-0f49d4b437d6",
+      "name": "Send a text message",
+      "webhookId": "f096aa6e-7a8a-48e9-baab-34f4b6399eec",
+      "credentials": {
+        "telegramApi": {
+          "id": "if6RVAGN5zYgtZH7",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## FORCASTING",
+        "height": 944,
+        "width": 1376,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -576,
+        -832
+      ],
+      "typeVersion": 1,
+      "id": "a0d1a1bd-f2c2-4d82-8669-f3510c3bc4d5",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28",
+        "responseMode": "responseNode",
+        "options": {
+          "binaryPropertyName": "data csv"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        1024,
+        64
+      ],
+      "id": "2abcb6ad-461b-4e57-a1f3-377f7df3ad7d",
+      "name": "Build",
+      "webhookId": "367f41f9-66e9-40e9-8d42-a3b5d8bbfc28"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:8020/build_model",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "parameterType": "formBinaryData",
+              "name": "dataset",
+              "inputDataFieldName": "data csv0"
+            },
+            {
+              "name": "machine_name",
+              "value": "={{ $json.body.machine_name }}"
+            },
+            {
+              "name": "model_set",
+              "value": "={{ $json.body.model_set }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        1216,
+        64
+      ],
+      "id": "147162ba-08c6-42b4-bb1b-c4a93170fd55",
+      "name": "Build Model"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ output: $json.output }) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1424,
+        64
+      ],
+      "id": "2f919ecb-932a-412d-9dfd-a53902c2ef1d",
+      "name": "Respond to Webhook2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chatbot",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Chatbot",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reranker Cohere": {
+      "ai_reranker": [
+        [
+          {
+            "node": "Retrieve",
+            "type": "ai_reranker",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve": {
+      "ai_tool": [
+        [
+          {
+            "node": "Agent Forcas Analis",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Agent Detector Analis",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Chatbot",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ],
+      "ai_vectorStore": [
+        []
+      ]
+    },
+    "Chatbot": {
+      "main": [
+        []
+      ]
+    },
+    "Ollama Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Forcasting Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings HuggingFace Inference": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Store",
+            "type": "ai_embedding",
+            "index": 0
+          },
+          {
+            "node": "Retrieve",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recursive Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Forcasting Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input KB": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orchestrator Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Forcasting Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent Forcas Analis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detector Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Anomali Detector Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Ollama": {
+      "ai_embedding": [
+        []
+      ]
+    },
+    "Backup Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Chatbot",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Forcasting Agent",
+            "type": "ai_languageModel",
+            "index": 1
+          },
+          {
+            "node": "Anomali Detector Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LSTM": {
+      "ai_tool": [
+        [
+          {
+            "node": "Forcasting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent Forcas Analis",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anomali Detector Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Agent Detector Analis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Detector Analis": {
+      "ai_tool": [
+        [
+          {
+            "node": "Anomali Detector Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory Analis D": {
+      "ai_memory": [
+        [
+          {
+            "node": "Agent Detector Analis",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forcasting Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Chatbot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunks & Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Forcas Analis": {
+      "ai_tool": [
+        [
+          {
+            "node": "Forcasting Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        []
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Chunks & Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Predict": {
+      "ai_tool": [
+        [
+          {
+            "node": "Anomali Detector Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agent Anomali": {
+      "main": [
+        [
+          {
+            "node": "Anomali Detector Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anomali Check": {
+      "main": [
+        [
+          {
+            "node": "Predict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Predict": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Build": {
+      "main": [
+        [
+          {
+            "node": "Build Model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Model": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "698f5a85-668c-4b83-87c3-f3ec03c36291",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5022dd2424a11593c76a473e04f565bb682c24b099ce80652e0643dc56839cff"
+  },
+  "nodeGroups": [
+    {
+      "id": "fbc505fe-2e2a-46ab-9b5c-dd2e88db6665",
+      "name": "Store Knowledge Base",
+      "nodeIds": [
+        "d6884559-965e-49b8-b030-c46f68b75d99",
+        "8ee012c5-f1fd-48f6-9bb8-4304730767b8",
+        "ba78ed0a-b596-4193-a0eb-64374d6e8fec",
+        "48da73c1-b0a9-4c3d-8114-3cf0632349c0",
+        "0966a511-fdd2-4ba7-934e-d00973179387"
+      ]
+    }
+  ],
+  "id": "MFPNgdfmMo8Svhjx",
+  "tags": []
+}
